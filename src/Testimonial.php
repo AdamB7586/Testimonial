@@ -123,7 +123,7 @@ class Testimonial{
             if(!$heading){$heading = NULL;}
             if(!$location){$location = NULL;}
             if(!$image['name']){$image['name'] = NULL;}else{$image['name'] = $image['name'];}
-            if($this->sendEmail){$this->sendApprovalEmail($name, $testimonial, $image, intval($course), intval($firstTime));}
+            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $image, intval($course), intval($firstTime));}
             return $this->db->insert($this->getTestimonialTable(), array('fino' => $instructor, 'name' => $name, 'heading' => $heading, 'testimonial' => $testimonial, 'location' => $location, 'course_type' => intval($course), 'first_time_pass' => intval($firstTime), 'rating' => intval($rating), 'image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height']), 'approved' => intval($approved)));
         }
         return false;
