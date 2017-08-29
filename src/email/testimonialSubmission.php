@@ -1,0 +1,4 @@
+<?php
+$emailsubject = "";
+
+$emailhtml = "";
