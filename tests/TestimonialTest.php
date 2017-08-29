@@ -17,7 +17,7 @@ class TestimonialTest extends TestCase{
         unset($this->testimonial);
     }
     
-    public function exampleTest(){
+    public function testExample(){
         $this->markTestIncomplete('Test not yet complete');
     }
 }
