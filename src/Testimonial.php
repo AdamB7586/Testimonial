@@ -111,13 +111,14 @@ class Testimonial extends ImageUpload{
      * @param string $heading The main heading to set for the testimonial
      * @param file $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
+     * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    public function addTestimonial($name, $testimonial, $heading = NULL, $image = NULL, $additionalInfo = []) {
+    public function addTestimonial($name, $testimonial, $heading = NULL, $image = NULL, $additionalInfo = [], $submittedBy = false) {
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
             if(!$heading){$heading = NULL;}
             if(!$image['name']){$image['name'] = NULL;}else{$image['name'] = $image['name'];}
-            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo);}
+            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo, $submittedBy);}
             return $this->db->insert($this->getTestimonialTable(), array_merge(
                 array('name' => $name, 'heading' => $heading, 'testimonial' => $testimonial, 'image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])),
                 $additionalInfo,
@@ -202,13 +203,17 @@ class Testimonial extends ImageUpload{
      * @param string $heading The main heading to set for the testimonial
      * @param file $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
+     * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    protected function sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo){
+    protected function sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo, $submittedBy = false){
         if($image['name']){$attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']); $imageAttached = 'Yes';}
         else{$imageAttached = 'No';}
         include($this->getEmailPath().'testimonialSubmission.php');
-        $html = sprintf($emailhtml, $this->emailTo, $this->instructor['fino'], $this->instructor['ldiname'], $name, $heading, $testimonial, $additionalInfo, $imageAttached);
-        return sendEmail($this->emailToAdd, sprintf($emailsubject, $this->instructor['fino'], $name), convertHTMLtoPlain($html), htmlEmail($html), $this->emailFrom, $this->emailName, '', $this->replyTo, $attachment);
+        foreach($additionalInfo as $k => $value){
+            $additional.= "<p><strong>".$k.":</strong> ".$value."</p>\r\n"; 
+        }
+        $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $heading, $testimonial, $additional, $imageAttached);
+        return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, '', $this->replyTo, $attachment);
     }
 }
