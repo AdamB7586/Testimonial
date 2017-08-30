@@ -109,7 +109,7 @@ class Testimonial extends ImageUpload{
      * @param string $name The name of the person giving the testimonial
      * @param string $testimonial The testimonial comments/ information from the pupil of instructor
      * @param string $heading The main heading to set for the testimonial
-     * @param file|false $image This should be the $_FILES['image']
+     * @param file $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
@@ -158,6 +158,7 @@ class Testimonial extends ImageUpload{
      * @return array Returns an array of all / an individual testimonial(s) based on the input
      */
     public function getTestimonial($id = false, $status = false, $search = [], $random = false){
+        $where = array();
         if(is_numeric($id)){$where['id'] = $id; $num = 1;}else{$num = 0;}
         if(is_numeric($status)){$where['approved'] = intval($status);}
         if(!empty($search)){
