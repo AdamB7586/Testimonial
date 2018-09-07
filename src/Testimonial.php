@@ -115,6 +115,7 @@ class Testimonial extends ImageUpload{
      * return boolean If the testimonial is added successfully will return true else returns false
      */
     public function addTestimonial($name, $testimonial, $heading = '', $image = false, $additionalInfo = [], $submittedBy = false) {
+        if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
             if(empty($heading)){$heading = NULL;}
             if(!$image['name']){$image['name'] = NULL;}else{$image['name'] = $image['name'];}
@@ -140,6 +141,7 @@ class Testimonial extends ImageUpload{
      * @return boolean
      */
     public function updateTestimonial($testimonialID, $name, $testimonial, $heading = '', $image = NULL, $additionalInfo = [], $dateAdded = NULL) {
+        if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
             if(empty($heading)){$heading = NULL;}
             if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = array('submitted' => date('Y-m-d H:i:s', strtotime($dateAdded)));}else{$updateDate = array();}
@@ -218,5 +220,15 @@ class Testimonial extends ImageUpload{
         }
         $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $heading, $testimonial, $additional, $imageAttached);
         return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, '', $this->replyTo, $attachment);
+    }
+    
+    /**
+     * Makes the file name safe for URL
+     * @param string $name This should be the original file name
+     * @param boolean $addDateTime If you want to add a date/time stamp to filename
+     * @return string Returns the new file name
+     */
+    private function makeSafeFileName($name, $addDateTime = false){
+        return ($addDateTime === true ? date('YmdHis').'-' : '').strtolower(str_replace(' ', '', preg_replace("/[^A-Za-z0-9 ]/", '', $name)));
     }
 }
