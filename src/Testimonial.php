@@ -144,9 +144,9 @@ class Testimonial extends ImageUpload{
         if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
             if(empty($heading)){$heading = NULL;}
-            if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = array('submitted' => date('Y-m-d H:i:s', strtotime($dateAdded)));}else{$updateDate = array();}
-            if($image['name']){$imageArray = array('image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height']));}else{$imageArray = array();}
-            return $this->db->update($this->getTestimonialTable(), array_merge(array('name' => $name, 'heading' => $heading, 'testimonial' => $testimonial), $imageArray, $updateDate, $additionalInfo), array('id' => $testimonialID));
+            if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];}else{$updateDate = [];}
+            if($image['name']){$imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}else{$imageArray = [];}
+            return $this->db->update($this->getTestimonialTable(), array_merge(['name' => $name, 'heading' => $heading, 'testimonial' => $testimonial], $imageArray, $updateDate, $additionalInfo), ['id' => $testimonialID]);
         }
         return false;
     }
@@ -156,10 +156,10 @@ class Testimonial extends ImageUpload{
      * @param int|boolean $id If you want to get an single testimonial include the unique id of that testimonial
      * @param int|boolean $status The status of the testimonials you wish to retrieve (0 = Pending, 1 = Approved, false = all);
      * @param array $search If you want to search particular fields place th field name and value in an array
-     * @param boolean $random If you want a random order set to true else set as false
+     * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
      * @return array Returns an array of all / an individual testimonial(s) based on the input
      */
-    public function getTestimonial($id = false, $status = false, $search = [], $random = false){
+    public function getTestimonial($id = false, $status = false, $search = [], $order = false){
         $where = array();
         if(is_numeric($id)){$where['id'] = $id; $num = 1;}else{$num = 0;}
         if(is_numeric($status)){$where['approved'] = intval($status);}
@@ -168,8 +168,8 @@ class Testimonial extends ImageUpload{
                 $where[$var] = $value;
             }
         }
-        if($random !== false){$order = 'RAND()';}else{$order = array('submitted' => 'DESC');}
-        return $this->db->selectAll($this->getTestimonialTable(), $where, '*', $order, $num);
+        if(!is_array($order)){$order = 'RAND()';}
+        return ($num > 1 ? $this->db->selectAll($this->getTestimonialTable(), $where, '*', $order, $num) : $this->db->select($this->getTestimonialTable(), $where, '*', $order));
     }
     
     /**
@@ -179,9 +179,9 @@ class Testimonial extends ImageUpload{
      */
     public function deleteTestimonial($testimonialID){
         if(is_numeric($testimonialID)){
-            $testimonialInfo = $this->db->select($this->getTestimonialTable(), array('id' => $testimonialID));
+            $testimonialInfo = $this->db->select($this->getTestimonialTable(), ['id' => $testimonialID]);
             if($testimonialInfo['image']){$this->deleteTestimonialImage($testimonialInfo['image']);}
-            return $this->db->delete($this->getTestimonialTable(), array('id' => $testimonialID));
+            return $this->db->delete($this->getTestimonialTable(), ['id' => $testimonialID]);
         }
         return false;
     }
