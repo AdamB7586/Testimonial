@@ -180,7 +180,7 @@ class Testimonial extends ImageUpload{
     public function deleteTestimonial($testimonialID){
         if(is_numeric($testimonialID)){
             $testimonialInfo = $this->db->select($this->getTestimonialTable(), ['id' => $testimonialID]);
-            if($testimonialInfo['image']){$this->deleteTestimonialImage($testimonialInfo['image']);}
+            if($testimonialInfo['image']){$this->deleteImage($testimonialInfo['image']);}
             return $this->db->delete($this->getTestimonialTable(), ['id' => $testimonialID]);
         }
         return false;
