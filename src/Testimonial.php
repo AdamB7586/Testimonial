@@ -108,22 +108,17 @@ class Testimonial extends ImageUpload{
      * Add a new testimonial to the database and upload any images
      * @param string $name The name of the person giving the testimonial
      * @param string $testimonial The testimonial comments/ information from the pupil of instructor
-     * @param string $heading The main heading to set for the testimonial
      * @param file $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    public function addTestimonial($name, $testimonial, $heading = '', $image = false, $additionalInfo = [], $submittedBy = false) {
+    public function addTestimonial($name, $testimonial, $image = false, $additionalInfo = [], $submittedBy = false) {
         if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if(empty($heading)){$heading = NULL;}
-            if(!$image['name']){$image['name'] = NULL;}else{$image['name'] = $image['name'];}
-            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo, $submittedBy);}
-            return $this->db->insert($this->getTestimonialTable(), array_merge(
-                array('name' => $name, 'heading' => $heading, 'testimonial' => $testimonial, 'image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])),
-                $additionalInfo,
-                array('approved' => ($this->autoApprove === true ? 1 : 0))
+            if(!$image['name']){$imageInfo = [];}else{$imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
+            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy);}
+            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], $imageInfo, $additionalInfo, ['approved' => ($this->autoApprove === true ? 1 : 0)]
             ));
         }
         return false;
@@ -140,13 +135,12 @@ class Testimonial extends ImageUpload{
      * @param dateTime $dateAdded The date the testimonial was added or change to alter the order of the testimonials
      * @return boolean
      */
-    public function updateTestimonial($testimonialID, $name, $testimonial, $heading = '', $image = NULL, $additionalInfo = [], $dateAdded = NULL) {
+    public function updateTestimonial($testimonialID, $image = NULL, $testimonialInfo = [], $dateAdded = NULL) {
         if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
-        if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if(empty($heading)){$heading = NULL;}
+        if(!empty($testimonialInfo) && is_array($testimonialInfo) && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
             if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];}else{$updateDate = [];}
             if($image['name']){$imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}else{$imageArray = [];}
-            return $this->db->update($this->getTestimonialTable(), array_merge(['name' => $name, 'heading' => $heading, 'testimonial' => $testimonial], $imageArray, $updateDate, $additionalInfo), ['id' => $testimonialID]);
+            return $this->db->update($this->getTestimonialTable(), array_merge($imageArray, $updateDate, $testimonialInfo), ['id' => $testimonialID]);
         }
         return false;
     }
@@ -194,7 +188,7 @@ class Testimonial extends ImageUpload{
      */
     public function approveTestimonial($testimonialID, $approve = 1){
         if(is_numeric($testimonialID) && is_numeric($approve)){
-            return $this->db->update($this->getTestimonialTable(), array('approved' => $approve), array('id' => $testimonialID));
+            return $this->db->update($this->getTestimonialTable(), ['approved' => $approve], ['id' => $testimonialID]);
         }
         return false;
     }
@@ -203,13 +197,12 @@ class Testimonial extends ImageUpload{
      * Send an email to make note of the new testimonial submission
      * @param string $name The name of the person giving the testimonial
      * @param string $testimonial The testimonial comments/ information from the pupil of instructor
-     * @param string $heading The main heading to set for the testimonial
      * @param file $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    protected function sendApprovalEmail($name, $testimonial, $heading, $image, $additionalInfo, $submittedBy = false){
+    protected function sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy = false){
         $attachment = array();
         if($image['name']){$attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']); $imageAttached = 'Yes';}
         else{$imageAttached = 'No';}
@@ -218,7 +211,7 @@ class Testimonial extends ImageUpload{
         foreach($additionalInfo as $k => $value){
             $additional.= "<p><strong>".$k.":</strong> ".$value."</p>\r\n"; 
         }
-        $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $heading, $testimonial, $additional, $imageAttached);
+        $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $testimonial, $additional, $imageAttached);
         return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, '', $this->replyTo, $attachment);
     }
     
