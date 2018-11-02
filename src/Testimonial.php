@@ -221,7 +221,7 @@ class Testimonial extends ImageUpload{
      * @param boolean $addDateTime If you want to add a date/time stamp to filename
      * @return string Returns the new file name
      */
-    private function makeSafeFileName($name, $addDateTime = false){
+    protected function makeSafeFileName($name, $addDateTime = false){
         return ($addDateTime === true ? date('YmdHis').'-' : '').strtolower(str_replace(' ', '', preg_replace("/[^A-Za-z0-9._ ]/", '', $name)));
     }
 }
