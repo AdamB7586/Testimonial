@@ -149,7 +149,7 @@ class Testimonial extends ImageUpload{
      * Gets the testimonials
      * @param int|boolean $id If you want to get an single testimonial include the unique id of that testimonial
      * @param int|boolean $status The status of the testimonials you wish to retrieve (0 = Pending, 1 = Approved, false = all);
-     * @param array $search If you want to search particular fields place th field name and value in an array
+     * @param array $search If you want to search particular fields place the field name and value in an array
      * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
      * @return array Returns an array of all / an individual testimonial(s) based on the input
      */
@@ -212,7 +212,7 @@ class Testimonial extends ImageUpload{
             $additional.= "<p><strong>".$k.":</strong> ".$value."</p>\r\n"; 
         }
         $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $testimonial, $additional, $imageAttached);
-        return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, '', $this->replyTo, $attachment);
+        return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, $this->replyTo, $attachment);
     }
     
     /**

@@ -8,7 +8,7 @@
         "adamb/image-upload": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.3"
+        "phpunit/phpunit": "^8.2"
     },
     "suggests": {
         "phpmailer/phpmailer": "^5.2; If you plan on sending an approval email on submission will need PHPMailer"

@@ -8,30 +8,52 @@
  * @param string $html The HTML version of the email message
  * @param string $from The email address of the person the email is from
  * @param string $fromname The name of the person the email is from
- * @param string $host The hostname where the message is from
  * @param string $replyto If you want to change the reply to address
  * @param array $attachment A single attachment should be included here e.g. array(0 => array(path, name))
  * @return true|false Returns true if email sent else returns false 
  */
-function sendEmail($to, $subject, $plain, $html, $from, $fromname, $host = '', $replyto = '', $attachment = array()){
-    $email = new PHPMailer();
-    $email->IsSMTP();
-    $email->SMTPAuth = true;
-    $email->Username = SMTP_USERNAME;
-    $email->Password = SMTP_PASSWORD;
-    $email->SMTPDebug = SMTP_DEBUG;
-    if(!empty($host)){$email->Host = $host;}
-    else{$email->Host = 'mail.'.DOMAIN;}
-    if(!empty($replyto)){$email->AddReplyTo($replyto, $fromname);}
-    $email->SetFrom($from, $fromname);
-    $email->AddAddress($to);
+function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = '', $attachment = ''){
+    // Check configuration for SMTP parameters
+    $mail = new PHPMailer\PHPMailer\PHPMailer();
+    $mail->CharSet = 'UTF-8';
+    if(USE_SMTP){
+        $mail->isSMTP();
+        $mail->Host = SMTP_HOST;
+        $mail->SMTPAuth = SMTP_AUTH;
+        $mail->AuthType = SMTP_AUTHTYPE;
+        if(SMTP_AUTH == true){
+            $mail->Username = SMTP_USERNAME;
+            $mail->Password = SMTP_PASSWORD;
+        }
+        $mail->Port = SMTP_PORT;
+        if(!is_null(SMTP_SECURITY)){
+            $mail->SMTPSecure = SMTP_SECURITY;
+        }
+        $mail->smtpConnect(
+            [
+                "ssl" => [
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                    "allow_self_signed" => true
+                ]
+            ]
+        );
+    }
+
+    $mail->From = $from;
+    $mail->FromName = $fromname;
+    if(!empty($replyto)){
+        $mail->AddReplyTo($replyto, $fromname);
+    }
+    $mail->addAddress($to);
+    $mail->isHTML(true);
     if(!empty($attachment)){
         foreach($attachment as $file){
-            $email->addAttachment($file[0], $file[1]);
+            $mail->addAttachment($file[0], $file[1]);
         }
     }
-    $email->Subject = $subject;
-    $email->MsgHTML($html);
-    $email->AltBody = $plain;
-    return $email->Send() ? true : false;
+    $mail->Subject = $subject;
+    $mail->Body = $html;
+    $mail->AltBody = $plain;
+    return $mail->send();
 }

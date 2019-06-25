@@ -9,11 +9,11 @@ class TestimonialTest extends TestCase{
     
     protected $testimonial;
     
-    public function setUp() {
+    public function setUp(): void {
         $this->testimonial = new Testimonial(new Database('127.0.0.1', 'root', '', 'test_db'));
     }
     
-    public function tearDown() {
+    public function tearDown(): void {
         unset($this->testimonial);
     }
     
