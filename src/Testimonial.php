@@ -127,11 +127,8 @@ class Testimonial extends ImageUpload{
     /**
      * Updates a testimonial in the database and uploads any new images if required
      * @param int $testimonialID The unique testimonial ID that you are updating
-     * @param string $name The name of the person giving the testimonial
-     * @param string $testimonial The testimonial comments/ information from the pupil of instructor
-     * @param string $heading The main heading to set for the testimonial
      * @param file $image This should be the $_FILES['image']
-     * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
+     * @param array $testimonialInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
      * @param dateTime $dateAdded The date the testimonial was added or change to alter the order of the testimonials
      * @return boolean
      */
