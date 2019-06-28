@@ -160,7 +160,7 @@ class Testimonial extends ImageUpload{
             }
         }
         if(!is_array($order)){$order = 'RAND()';}
-        return ($num > 1 ? $this->db->selectAll($this->getTestimonialTable(), $where, '*', $order, $num) : $this->db->select($this->getTestimonialTable(), $where, '*', $order));
+        return ($num !== 1 ? $this->db->selectAll($this->getTestimonialTable(), $where, '*', $order, $num) : $this->db->select($this->getTestimonialTable(), $where, '*', $order));
     }
     
     /**
