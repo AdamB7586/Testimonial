@@ -164,6 +164,25 @@ class Testimonial extends ImageUpload{
     }
     
     /**
+     * Counts the number of testimonials
+     * @param int|boolean $id If you want to get an single testimonial include the unique id of that testimonial
+     * @param int|boolean $status The status of the testimonials you wish to retrieve (0 = Pending, 1 = Approved, false = all);
+     * @param array $search If you want to search particular fields place the field name and value in an array
+     * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
+     * @return array Returns the number of testimonials in the query
+     */
+    public function countTestimonials($id = false, $status = false, $search = [], $order = false){
+        $testimonials = $this->getTestimonial($id, $status, $search, $order);
+        if($testimonials !== false){
+            if(is_numeric($id)){
+                return 1;
+            }
+            return count($testimonials);
+        }
+        return 0;
+    }
+    
+    /**
      * Delete the testimonial and associated images from the server and database
      * @param int $testimonialID This should be the unique ID of the image in the database
      * @return boolean Returns true if the image is deleted else returns false
