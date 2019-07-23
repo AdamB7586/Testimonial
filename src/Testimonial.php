@@ -102,6 +102,7 @@ class Testimonial extends ImageUpload{
         }
         $this->emailName = $emailFrom;
         $this->replyTo = $replyTo;
+        return $this;
     }
     
     /**
