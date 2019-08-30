@@ -220,7 +220,7 @@ class Testimonial extends ImageUpload{
      * return boolean If the testimonial is added successfully will return true else returns false
      */
     protected function sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy = false){
-        $attachment = array();
+        $attachment = [];
         if($image['name']){$attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']); $imageAttached = 'Yes';}
         else{$imageAttached = 'No';}
         include($this->getEmailPath().'testimonialSubmission.php');
