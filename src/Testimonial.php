@@ -151,7 +151,7 @@ class Testimonial extends ImageUpload{
      * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
      * @return array Returns an array of all / an individual testimonial(s) based on the input
      */
-    public function getTestimonial($id = false, $status = false, $search = [], $order = false){
+    public function getTestimonial($id = false, $status = false, $search = [], $order = []){
         $where = array();
         if(is_numeric($id)){$where['id'] = $id; $num = 1;}else{$num = 0;}
         if(is_numeric($status)){$where['approved'] = intval($status);}
