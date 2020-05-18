@@ -114,12 +114,12 @@ class Testimonial extends ImageUpload{
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    public function addTestimonial($name, $testimonial, $image = false, $additionalInfo = [], $submittedBy = false) {
+    public function addTestimonial($name, $testimonial, $image = false, array $additionalInfo = [], $submittedBy = false) {
         if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if(!$image['name']){$imageInfo = [];}else{$imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
+            if($image['name']){$imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
             if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy);}
-            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], $imageInfo, $additionalInfo, ['approved' => ($this->autoApprove === true ? 1 : 0)]
+            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], (is_array($imageInfo) ? $imageInfo : []), (is_array($additionalInfo) ? $additionalInfo : []), ['approved' => ($this->autoApprove === true ? 1 : 0)]
             ));
         }
         return false;
@@ -133,12 +133,12 @@ class Testimonial extends ImageUpload{
      * @param dateTime $dateAdded The date the testimonial was added or change to alter the order of the testimonials
      * @return boolean
      */
-    public function updateTestimonial($testimonialID, $image = NULL, $testimonialInfo = [], $dateAdded = NULL) {
+    public function updateTestimonial($testimonialID, $image = NULL, array $testimonialInfo = [], $dateAdded = NULL) {
         if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
         if(!empty($testimonialInfo) && is_array($testimonialInfo) && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];}else{$updateDate = [];}
-            if($image['name']){$imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}else{$imageArray = [];}
-            return $this->db->update($this->getTestimonialTable(), array_merge($imageArray, $updateDate, $testimonialInfo), ['id' => $testimonialID]);
+            if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];}
+            if($image['name']){$imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
+            return $this->db->update($this->getTestimonialTable(), array_merge((is_array($imageArray) ? $imageArray : []), (is_array($updateDate) ? $updateDate : []), (is_array($testimonialInfo) ? $testimonialInfo : [])), ['id' => $testimonialID]);
         }
         return false;
     }
