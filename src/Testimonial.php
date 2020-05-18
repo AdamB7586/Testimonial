@@ -239,6 +239,6 @@ class Testimonial extends ImageUpload{
      * @return string Returns the new file name
      */
     protected function makeSafeFileName($name, $addDateTime = false){
-        return ($addDateTime === true ? date('YmdHis').'-' : '').strtolower(str_replace(' ', '', preg_replace("/[^A-Za-z0-9._ ]/", '', $name)));
+        return ($addDateTime === true ? date('YmdHis').'-' : '').strtolower(str_replace(' ', '', preg_replace("/[^A-Za-z0-9._- ]/", '', $name)));
     }
 }
