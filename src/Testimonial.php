@@ -211,6 +211,18 @@ class Testimonial extends ImageUpload{
     }
     
     /**
+     * Remove the image from a testimonial and delete the image from the server
+     * @param array $testimonialInfo This should be the testimonial information as an array that you are removing the image from
+     * @return boolean Returns true on success or false on failure
+     */
+    public function removeImage($testimonialInfo){
+        if($this->deleteImage($testimonialInfo['image'])){
+            return $this->updateTestimonial($testimonialInfo['id'], NULL, ['image' => NULL, 'width' => 0, 'height' => 0]);
+        }
+        return false;
+    }
+    
+    /**
      * Send an email to make note of the new testimonial submission
      * @param string $name The name of the person giving the testimonial
      * @param string $testimonial The testimonial comments/ information from the pupil of instructor
