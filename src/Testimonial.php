@@ -216,10 +216,8 @@ class Testimonial extends ImageUpload{
      * @return boolean Returns true on success or false on failure
      */
     public function removeImage($testimonialInfo){
-        if($this->deleteImage($testimonialInfo['image'])){
-            return $this->updateTestimonial($testimonialInfo['id'], NULL, ['image' => NULL, 'width' => 0, 'height' => 0]);
-        }
-        return false;
+        $this->deleteImage($testimonialInfo['image']);
+        return $this->updateTestimonial($testimonialInfo['id'], NULL, ['image' => NULL, 'width' => 0, 'height' => 0]);
     }
     
     /**
