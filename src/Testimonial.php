@@ -4,7 +4,8 @@ namespace Testimonials;
 use DBAL\Database;
 use ImgUpload\ImageUpload;
 
-class Testimonial extends ImageUpload{
+class Testimonial extends ImageUpload
+{
     protected $db;
     protected static $testimonialTable = 'testimonials';
     
@@ -23,7 +24,8 @@ class Testimonial extends ImageUpload{
      * Constructor sets instance of the database connection
      * @param Database $db
      */
-    public function __construct(Database $db){
+    public function __construct(Database $db)
+    {
         parent::__construct();
         $this->db = $db;
     }
@@ -33,7 +35,8 @@ class Testimonial extends ImageUpload{
      * @param string $table This should be the table name of where you want to store the testimonials
      * @return $this
      */
-    public function setTestimonialTable($table){
+    public function setTestimonialTable($table)
+    {
         self::$testimonialTable = $table;
         return $this;
     }
@@ -42,7 +45,8 @@ class Testimonial extends ImageUpload{
      * Returns the table name where the testimonials can be found
      * @return string This will the be database table where the testimonials are
      */
-    public function getTestimonialTable(){
+    public function getTestimonialTable()
+    {
         return self::$testimonialTable;
     }
     
@@ -51,16 +55,18 @@ class Testimonial extends ImageUpload{
      * @param boolean $autoApprove If you wish to auto approve testimonials set to true else set to false
      * @return $this
      */
-    public function setAutoApprove($autoApprove = true){
+    public function setAutoApprove($autoApprove = true)
+    {
         $this->autoApprove = (bool)$autoApprove;
         return $this;
     }
     
     /**
-     * Gets the auto approval status 
+     * Gets the auto approval status
      * @return boolean If the testimonials are to be automatically approved should be true else will be false
      */
-    public function getAutoApprove(){
+    public function getAutoApprove()
+    {
         return $this->autoApprove;
     }
     
@@ -69,7 +75,8 @@ class Testimonial extends ImageUpload{
      * @param string $path This should be the path where the email file is located
      * @return $this
      */
-    public function setEmailPath($path){
+    public function setEmailPath($path)
+    {
         $this->emailPath = $path;
         return $this;
     }
@@ -78,7 +85,8 @@ class Testimonial extends ImageUpload{
      * Returns the email path where the template email can be found
      * @return string This is the email path
      */
-    public function getEmailPath(){
+    public function getEmailPath()
+    {
         return $this->emailPath;
     }
     
@@ -91,13 +99,14 @@ class Testimonial extends ImageUpload{
      * @param string $replyTo This should be the email reply to address
      * @param boolean $send If you want to send an approval email set to true else set as false
      */
-    public function sendApproval($emailToAdd, $emailTo, $emailFromAdd, $emailFrom, $replyTo = '', $send = true){
+    public function sendApproval($emailToAdd, $emailTo, $emailFromAdd, $emailFrom, $replyTo = '', $send = true)
+    {
         $this->sendEmail = (boolean)$send;
-        if(filter_var($emailToAdd, FILTER_VALIDATE_EMAIL)){
+        if (filter_var($emailToAdd, FILTER_VALIDATE_EMAIL)) {
             $this->emailToAdd = $emailToAdd;
         }
         $this->emailTo = $emailTo;
-        if(filter_var($emailToAdd, FILTER_VALIDATE_EMAIL)){
+        if (filter_var($emailToAdd, FILTER_VALIDATE_EMAIL)) {
             $this->emailFrom = $emailFromAdd;
         }
         $this->emailName = $emailFrom;
@@ -114,13 +123,19 @@ class Testimonial extends ImageUpload{
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    public function addTestimonial($name, $testimonial, $image = false, array $additionalInfo = [], $submittedBy = false) {
-        if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
-        if($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if($image['name']){$imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
-            if($this->sendEmail === true){$this->sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy);}
-            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], (is_array($imageInfo) ? $imageInfo : []), (is_array($additionalInfo) ? $additionalInfo : []), ['approved' => ($this->autoApprove === true ? 1 : 0)]
-            ));
+    public function addTestimonial($name, $testimonial, $image = false, array $additionalInfo = [], $submittedBy = false)
+    {
+        if ($image['name']) {
+            $image['name'] = $this->makeSafeFileName($image['name']);
+        }
+        if ($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))) {
+            if ($image['name']) {
+                $imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];
+            }
+            if ($this->sendEmail === true) {
+                $this->sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy);
+            }
+            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], (is_array($imageInfo) ? $imageInfo : []), (is_array($additionalInfo) ? $additionalInfo : []), ['approved' => ($this->autoApprove === true ? 1 : 0)]));
         }
         return false;
     }
@@ -133,11 +148,18 @@ class Testimonial extends ImageUpload{
      * @param dateTime $dateAdded The date the testimonial was added or change to alter the order of the testimonials
      * @return boolean
      */
-    public function updateTestimonial($testimonialID, $image = NULL, array $testimonialInfo = [], $dateAdded = NULL) {
-        if($image['name']){$image['name'] = $this->makeSafeFileName($image['name']);}
-        if(!empty($testimonialInfo) && is_array($testimonialInfo) && (!$image['name'] || $image['name'] && $this->uploadImage($image))){
-            if(!is_null($dateAdded) && !empty($dateAdded)){$updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];}
-            if($image['name']){$imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];}
+    public function updateTestimonial($testimonialID, $image = null, array $testimonialInfo = [], $dateAdded = null)
+    {
+        if ($image['name']) {
+            $image['name'] = $this->makeSafeFileName($image['name']);
+        }
+        if (!empty($testimonialInfo) && is_array($testimonialInfo) && (!$image['name'] || $image['name'] && $this->uploadImage($image))) {
+            if (!is_null($dateAdded) && !empty($dateAdded)) {
+                $updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];
+            }
+            if ($image['name']) {
+                $imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];
+            }
             return $this->db->update($this->getTestimonialTable(), array_merge((is_array($imageArray) ? $imageArray : []), (is_array($updateDate) ? $updateDate : []), (is_array($testimonialInfo) ? $testimonialInfo : [])), ['id' => $testimonialID]);
         }
         return false;
@@ -151,16 +173,26 @@ class Testimonial extends ImageUpload{
      * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
      * @return array Returns an array of all / an individual testimonial(s) based on the input
      */
-    public function getTestimonial($id = false, $status = false, $search = [], $order = []){
+    public function getTestimonial($id = false, $status = false, $search = [], $order = [])
+    {
         $where = array();
-        if(is_numeric($id)){$where['id'] = $id; $num = 1;}else{$num = 0;}
-        if(is_numeric($status)){$where['approved'] = intval($status);}
-        if(!empty($search)){
-            foreach($search as $var => $value){
+        if (is_numeric($id)) {
+            $where['id'] = $id;
+            $num = 1;
+        } else {
+            $num = 0;
+        }
+        if (is_numeric($status)) {
+            $where['approved'] = intval($status);
+        }
+        if (!empty($search)) {
+            foreach ($search as $var => $value) {
                 $where[$var] = $value;
             }
         }
-        if(!is_array($order)){$order = 'RAND()';}
+        if (!is_array($order)) {
+            $order = 'RAND()';
+        }
         return ($num !== 1 ? $this->db->selectAll($this->getTestimonialTable(), $where, '*', $order, $num) : $this->db->select($this->getTestimonialTable(), $where, '*', $order));
     }
     
@@ -172,10 +204,11 @@ class Testimonial extends ImageUpload{
      * @param boolean|array $order If you want a random order set to false else to order by a field set as an array
      * @return array Returns the number of testimonials in the query
      */
-    public function countTestimonials($id = false, $status = false, $search = [], $order = false){
+    public function countTestimonials($id = false, $status = false, $search = [], $order = false)
+    {
         $testimonials = $this->getTestimonial($id, $status, $search, $order);
-        if($testimonials !== false){
-            if(is_numeric($id)){
+        if ($testimonials !== false) {
+            if (is_numeric($id)) {
                 return 1;
             }
             return count($testimonials);
@@ -188,10 +221,13 @@ class Testimonial extends ImageUpload{
      * @param int $testimonialID This should be the unique ID of the image in the database
      * @return boolean Returns true if the image is deleted else returns false
      */
-    public function deleteTestimonial($testimonialID){
-        if(is_numeric($testimonialID)){
+    public function deleteTestimonial($testimonialID)
+    {
+        if (is_numeric($testimonialID)) {
             $testimonialInfo = $this->db->select($this->getTestimonialTable(), ['id' => $testimonialID]);
-            if($testimonialInfo['image']){$this->deleteImage($testimonialInfo['image']);}
+            if ($testimonialInfo['image']) {
+                $this->deleteImage($testimonialInfo['image']);
+            }
             return $this->db->delete($this->getTestimonialTable(), ['id' => $testimonialID]);
         }
         return false;
@@ -203,8 +239,9 @@ class Testimonial extends ImageUpload{
      * @param int $approve This should be set to 1 or 0
      * @return boolean Returns true if successfully updated else returns false
      */
-    public function approveTestimonial($testimonialID, $approve = 1){
-        if(is_numeric($testimonialID) && is_numeric($approve)){
+    public function approveTestimonial($testimonialID, $approve = 1)
+    {
+        if (is_numeric($testimonialID) && is_numeric($approve)) {
             return $this->db->update($this->getTestimonialTable(), ['approved' => $approve], ['id' => $testimonialID]);
         }
         return false;
@@ -215,9 +252,10 @@ class Testimonial extends ImageUpload{
      * @param array $testimonialInfo This should be the testimonial information as an array that you are removing the image from
      * @return boolean Returns true on success or false on failure
      */
-    public function removeImage($testimonialInfo){
+    public function removeImage($testimonialInfo)
+    {
         $this->deleteImage($testimonialInfo['image']);
-        return $this->updateTestimonial($testimonialInfo['id'], NULL, ['image' => NULL, 'width' => 0, 'height' => 0]);
+        return $this->updateTestimonial($testimonialInfo['id'], null, ['image' => null, 'width' => 0, 'height' => 0]);
     }
     
     /**
@@ -229,14 +267,19 @@ class Testimonial extends ImageUpload{
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
      */
-    protected function sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy = false){
+    protected function sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy = false)
+    {
         $attachment = [];
-        if($image['name']){$attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']); $imageAttached = 'Yes';}
-        else{$imageAttached = 'No';}
+        if ($image['name']) {
+            $attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']);
+            $imageAttached = 'Yes';
+        } else {
+            $imageAttached = 'No';
+        }
         include($this->getEmailPath().'testimonialSubmission.php');
         $additional = '';
-        foreach($additionalInfo as $k => $value){
-            $additional.= "<p><strong>".$k.":</strong> ".$value."</p>\r\n"; 
+        foreach ($additionalInfo as $k => $value) {
+            $additional.= "<p><strong>".$k.":</strong> ".$value."</p>\r\n";
         }
         $html = sprintf($emailhtml, $this->emailTo, ($submittedBy ? $submittedBy : $name), $name, $testimonial, $additional, $imageAttached);
         return sendEmail($this->emailToAdd, sprintf($emailsubject, ($submittedBy ? $submittedBy : $name)), convertHTMLtoPlain($html), $html, $this->emailFrom, $this->emailName, $this->replyTo, $attachment);
@@ -248,7 +291,8 @@ class Testimonial extends ImageUpload{
      * @param boolean $addDateTime If you want to add a date/time stamp to filename
      * @return string Returns the new file name
      */
-    protected function makeSafeFileName($name, $addDateTime = false){
+    protected function makeSafeFileName($name, $addDateTime = false)
+    {
         return ($addDateTime === true ? date('YmdHis').'-' : '').strtolower(str_replace(' ', '', preg_replace("/[^A-Za-z0-9._\- ]/", '', $name)));
     }
 }
