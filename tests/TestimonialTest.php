@@ -5,19 +5,23 @@ use DBAL\Database;
 use Testimonials\Testimonial;
 use PHPUnit\Framework\TestCase;
 
-class TestimonialTest extends TestCase{
+class TestimonialTest extends TestCase
+{
     
     protected $testimonial;
     
-    public function setUp(): void {
+    public function setUp(): void
+    {
         $this->testimonial = new Testimonial(new Database('127.0.0.1', 'root', '', 'test_db'));
     }
     
-    public function tearDown(): void {
+    public function tearDown(): void
+    {
         unset($this->testimonial);
     }
     
-    public function testExample(){
+    public function testExample()
+    {
         $this->markTestIncomplete('Test not yet complete');
     }
 }
