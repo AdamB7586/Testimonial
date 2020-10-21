@@ -129,13 +129,11 @@ class Testimonial extends ImageUpload
             $image['name'] = $this->makeSafeFileName($image['name']);
         }
         if ($name && (!$image['name'] || $image['name'] && $this->uploadImage($image))) {
-            if ($image['name']) {
-                $imageInfo = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];
-            }
+            $imageInfo = ($image['name'] ? ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])] : []);
             if ($this->sendEmail === true) {
                 $this->sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy);
             }
-            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], (is_array($imageInfo) ? $imageInfo : []), (is_array($additionalInfo) ? $additionalInfo : []), ['approved' => ($this->autoApprove === true ? 1 : 0)]));
+            return $this->db->insert($this->getTestimonialTable(), array_merge(['name' => $name, 'testimonial' => $testimonial], $imageInfo, $additionalInfo, ['approved' => ($this->autoApprove === true ? 1 : 0)]));
         }
         return false;
     }
@@ -154,13 +152,9 @@ class Testimonial extends ImageUpload
             $image['name'] = $this->makeSafeFileName($image['name']);
         }
         if (!empty($testimonialInfo) && is_array($testimonialInfo) && (!$image['name'] || $image['name'] && $this->uploadImage($image))) {
-            if (!is_null($dateAdded) && !empty($dateAdded)) {
-                $updateDate = ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))];
-            }
-            if ($image['name']) {
-                $imageArray = ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])];
-            }
-            return $this->db->update($this->getTestimonialTable(), array_merge((is_array($imageArray) ? $imageArray : []), (is_array($updateDate) ? $updateDate : []), (is_array($testimonialInfo) ? $testimonialInfo : [])), ['id' => $testimonialID]);
+            $updateDate = (!is_null($dateAdded) && !empty($dateAdded) ? ['submitted' => date('Y-m-d H:i:s', strtotime($dateAdded))] : []);
+            $imageArray = ($image['name'] ? ['image' => $image['name'], 'width' => intval($this->imageInfo['width']), 'height' => intval($this->imageInfo['height'])] : []);
+            return $this->db->update($this->getTestimonialTable(), array_merge($imageArray, $updateDate, $testimonialInfo), ['id' => $testimonialID]);
         }
         return false;
     }
