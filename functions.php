@@ -47,7 +47,7 @@ function sendEmail($to, $subject, $plain, $html, $from, $fromname, $replyto = ''
     }
     $mail->addAddress($to);
     $mail->isHTML(true);
-    if(!empty($attachment)){
+    if(is_array($attachment) && !empty($attachment)){
         foreach($attachment as $file){
             $mail->addAttachment($file[0], $file[1]);
         }
