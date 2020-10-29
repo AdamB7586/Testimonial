@@ -256,7 +256,7 @@ class Testimonial extends ImageUpload
      * Send an email to make note of the new testimonial submission
      * @param string $name The name of the person giving the testimonial
      * @param string $testimonial The testimonial comments/ information from the pupil of instructor
-     * @param file $image This should be the $_FILES['image']
+     * @param mixed $image This should be the $_FILES['image']
      * @param array $additionalInfo Any additional information as an array that wants adding to the database as array('fieldname' => 'value')
      * @param string|false $submittedBy This should be the name of the person submitting the testimonial for user systems if other than the person who gave the testimonial
      * return boolean If the testimonial is added successfully will return true else returns false
@@ -264,7 +264,7 @@ class Testimonial extends ImageUpload
     protected function sendApprovalEmail($name, $testimonial, $image, $additionalInfo, $submittedBy = false)
     {
         $attachment = [];
-        if ($image['name']) {
+        if (isset($image['name'])) {
             $attachment[] = array($this->getRootFolder().$this->getImageFolder().basename($image['name']), $image['name']);
             $imageAttached = 'Yes';
         } else {
